@@ -52,11 +52,11 @@ def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG', mode='random'):
             print(f'Saving scores at {dir_name} for size {size} run {i+1}...')
             if mode == 'random':
                 if net_type == 'VGG':
-                    basenet = full_train_VGG11_MNIST(new_dset)
+                    basenet = full_train_VGG11_MNIST(mnist)
                 elif net_type == 'Resnet':
-                    basenet = full_train_resnet_MNIST(new_dset)
+                    basenet = full_train_resnet_MNIST(mnist)
                 elif net_type == 'Mobile':
-                    basenet = full_train_mobilenet_MNIST(new_dset)
+                    basenet = full_train_mobilenet_MNIST(mnist)
                 subset_idx = torch.randperm(len(mnist))[:size]
                 new_dset = SubsetTransformDataset(mnist, subset_idx, Deepfool(basenet, overshoot))
                 if net_type == 'VGG':
