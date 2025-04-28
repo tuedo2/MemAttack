@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from cnn import CNN
-from vgg import VGG
-from resnet import ResNet18
+from vgg import VGG, VGG_MNIST
+from resnet import ResNet18, ResNet18_MNIST
 
 def full_train_CNN(train, num_epochs=2, device=torch.device('cuda')):
     lr = 0.1
@@ -32,13 +32,37 @@ def full_train_CNN(train, num_epochs=2, device=torch.device('cuda')):
     return net
 
 def full_train_VGG11(train, num_epochs=5, device=torch.device('cuda')):
-    lr = 0.001
+    lr = 0.01
     batch_size = 512
     criterion = nn.CrossEntropyLoss()
 
     trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
     
     net = VGG('VGG11').to(device)
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+
+    for epoch in range(num_epochs):
+        for inputs, labels in trainloader:
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+
+            loss.backward()
+            optimizer.step()
+    
+    return net
+
+def full_train_VGG11_MNIST(train, num_epochs=2, device=torch.device('cuda')):
+    lr = 0.01
+    batch_size = 512
+    criterion = nn.CrossEntropyLoss()
+
+    trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
+    
+    net = VGG_MNIST('VGG11').to(device)
     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
 
     for epoch in range(num_epochs):
@@ -80,6 +104,29 @@ def full_train_resnet(train, num_epochs=5, device=torch.device('cuda')):
     
     return net
 
+def full_train_resnet_MNIST(train, num_epochs=2, device=torch.device('cuda')):
+    lr = 0.01
+    batch_size = 512
+    criterion = nn.CrossEntropyLoss()
+
+    trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
+    
+    net = ResNet18_MNIST().to(device)
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+
+    for epoch in range(num_epochs):
+        for inputs, labels in trainloader:
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+
+            loss.backward()
+            optimizer.step()
+    
+    return net
 
 def get_boundary_scores_for_net(train, net):
     '''
