@@ -38,7 +38,7 @@ def replace_attack(dir_name, replace_dataset, net_type='VGG', mode='random', res
                 if net_type == 'VGG':
                     basenet = full_train_VGG11(basecifar10)
                 elif net_type == 'Resnet':
-                    basenet == full_train_resnet(basecifar10)
+                    basenet = full_train_resnet(basecifar10)
                 subset_idx = get_boundary_subset_from_net(basecifar10, basenet, size)
             new_dset = SubsetTransformDataset(cifar10, subset_idx, 
                                               transforms.Compose([
@@ -67,7 +67,7 @@ def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG', mode='random'):
             if net_type == 'VGG':
                 basenet = full_train_VGG11(basecifar10)
             elif net_type == 'Resnet':
-                basenet == full_train_resnet(basecifar10)
+                basenet = full_train_resnet(basecifar10)
             if mode == 'random':
                 subset_idx = torch.randperm(len(cifar10))[:size]
             elif mode == 'boundary':
@@ -81,7 +81,7 @@ def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG', mode='random'):
             if net_type == 'VGG':
                 net = full_train_VGG11(new_dset)
             elif net_type == 'Resnet':
-                net == full_train_resnet(new_dset)
+                net = full_train_resnet(new_dset)
             scores = get_curv_scores_for_net(new_dset, net)
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
@@ -104,7 +104,7 @@ def pinv_attack(dir_name, net_type='VGG', mode='random'):
                 if net_type == 'VGG':
                     basenet = full_train_VGG11(basecifar10)
                 elif net_type == 'Resnet':
-                    basenet == full_train_resnet(basecifar10)
+                    basenet = full_train_resnet(basecifar10)
                 subset_idx = get_boundary_subset_from_net(basecifar10, basenet, size)
             new_dset = SubsetTransformDataset(cifar10, subset_idx, 
                                               transforms.Compose([
