@@ -3,33 +3,9 @@ import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as F
 
-from cnn import CNN
 from vgg import VGG, VGG_MNIST
+from mobilenet import MobileNetV2
 from resnet import ResNet18, ResNet18_MNIST
-
-def full_train_CNN(train, num_epochs=2, device=torch.device('cuda')):
-    lr = 0.1
-    batch_size = 512
-    criterion = nn.CrossEntropyLoss()
-
-    trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
-    
-    net = CNN(10).to(device)
-    optimizer = optim.SGD(net.parameters(), lr=lr)
-
-    for epoch in range(num_epochs):
-        for inputs, labels in trainloader:
-            inputs, labels = inputs.to(device), labels.to(device)
-
-            optimizer.zero_grad()
-
-            outputs = net(inputs)
-            loss = criterion(outputs, labels)
-
-            loss.backward()
-            optimizer.step()
-    
-    return net
 
 def full_train_VGG11(train, num_epochs=5, device=torch.device('cuda')):
     lr = 0.01
@@ -112,6 +88,55 @@ def full_train_resnet_MNIST(train, num_epochs=2, device=torch.device('cuda')):
     trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
     
     net = ResNet18_MNIST().to(device)
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+
+    for epoch in range(num_epochs):
+        for inputs, labels in trainloader:
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+
+            loss.backward()
+            optimizer.step()
+    
+    return net
+
+
+def full_train_mobilenet(train, num_epochs=5, device=torch.device('cuda')):
+    lr = 0.01
+    batch_size = 512
+    criterion = nn.CrossEntropyLoss()
+
+    trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
+    
+    net = MobileNetV2().to(device)
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+
+    for epoch in range(num_epochs):
+        for inputs, labels in trainloader:
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+
+            loss.backward()
+            optimizer.step()
+    
+    return net
+
+def full_train_mobilenet_MNIST(train, num_epochs=2, device=torch.device('cuda')):
+    lr = 0.01
+    batch_size = 512
+    criterion = nn.CrossEntropyLoss()
+
+    trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
+    
+    net = MobileNetV2(num_channels=1).to(device)
     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
 
     for epoch in range(num_epochs):

@@ -4,7 +4,7 @@ from torchvision import transforms
 import os
 import numpy as np
 
-from utils import full_train_VGG11, full_train_resnet, get_boundary_subset_from_net
+from utils import full_train_VGG11, full_train_resnet, full_train_mobilenet, get_boundary_subset_from_net
 from attacks import SubsetTransformDataset, ReplaceWithDataset, Deepfool, Pseudoinverse, NaiveMaxEMD
 from scoring import get_curv_scores_for_net
 
@@ -39,6 +39,8 @@ def replace_attack(dir_name, replace_dataset, net_type='VGG', mode='random', res
                     basenet = full_train_VGG11(basecifar10)
                 elif net_type == 'Resnet':
                     basenet = full_train_resnet(basecifar10)
+                elif net_type == 'Mobile':
+                    basenet = full_train_mobilenet(basecifar10)
                 subset_idx = get_boundary_subset_from_net(basecifar10, basenet, size)
             new_dset = SubsetTransformDataset(cifar10, subset_idx, 
                                               transforms.Compose([
@@ -50,6 +52,8 @@ def replace_attack(dir_name, replace_dataset, net_type='VGG', mode='random', res
                 net = full_train_VGG11(new_dset)
             elif net_type == 'Resnet':
                 net = full_train_resnet(new_dset)
+            elif net_type == 'Mobile':
+                net = full_train_mobilenet(new_dset)
             scores = get_curv_scores_for_net(new_dset, net)
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
@@ -68,6 +72,8 @@ def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG', mode='random'):
                 basenet = full_train_VGG11(basecifar10)
             elif net_type == 'Resnet':
                 basenet = full_train_resnet(basecifar10)
+            elif net_type == 'Mobile':
+                basenet = full_train_mobilenet(basecifar10)
             if mode == 'random':
                 subset_idx = torch.randperm(len(cifar10))[:size]
             elif mode == 'boundary':
@@ -82,6 +88,8 @@ def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG', mode='random'):
                 net = full_train_VGG11(new_dset)
             elif net_type == 'Resnet':
                 net = full_train_resnet(new_dset)
+            elif net_type == 'Mobile':
+                net = full_train_mobilenet(new_dset)
             scores = get_curv_scores_for_net(new_dset, net)
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
@@ -105,6 +113,8 @@ def pinv_attack(dir_name, net_type='VGG', mode='random'):
                     basenet = full_train_VGG11(basecifar10)
                 elif net_type == 'Resnet':
                     basenet = full_train_resnet(basecifar10)
+                elif net_type == 'Mobile':
+                    basenet = full_train_mobilenet(basecifar10)
                 subset_idx = get_boundary_subset_from_net(basecifar10, basenet, size)
             new_dset = SubsetTransformDataset(cifar10, subset_idx, 
                                               transforms.Compose([
@@ -116,6 +126,8 @@ def pinv_attack(dir_name, net_type='VGG', mode='random'):
                 net = full_train_VGG11(new_dset)
             elif net_type == 'Resnet':
                 net = full_train_resnet(new_dset)
+            elif net_type == 'Mobile':
+                net = full_train_mobilenet(new_dset)
             scores = get_curv_scores_for_net(new_dset, net)
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
@@ -138,6 +150,8 @@ def naive_emd_attack(dir_name, net_type='VGG', mode='random'):
                     basenet = full_train_VGG11(basecifar10)
                 elif net_type == 'Resnet':
                     basenet = full_train_resnet(basecifar10)
+                elif net_type == 'Mobile':
+                    basenet = full_train_mobilenet(basecifar10)
                 subset_idx = get_boundary_subset_from_net(basecifar10, basenet, size)
             new_dset = SubsetTransformDataset(cifar10, subset_idx, 
                                               transforms.Compose([
@@ -149,13 +163,15 @@ def naive_emd_attack(dir_name, net_type='VGG', mode='random'):
                 net = full_train_VGG11(new_dset)
             elif net_type == 'Resnet':
                 net = full_train_resnet(new_dset)
+            elif net_type == 'Mobile':
+                net = full_train_mobilenet(new_dset)
             scores = get_curv_scores_for_net(new_dset, net)
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
 svhn = torchvision.datasets.SVHN(root='./data', split='train', transform=transforms.ToTensor(), download=False)
 
-replace_attack('svhn_resnet', svhn, net_type='Resnet')
-deepfool_attack('deepfool02_resnet', net_type='Resnet')
-pinv_attack('pinv_resnet', net_type='Resnet')
-naive_emd_attack('naiveemd_resnet', net_type='Resnet')
+replace_attack('svhn_mobile', svhn, net_type='Mobile')
+deepfool_attack('deepfool02_mobile', net_type='Mobile')
+pinv_attack('pinv_mobile', net_type='Mobile')
+naive_emd_attack('naiveemd_mobile', net_type='Mobile')
