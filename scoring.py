@@ -109,7 +109,7 @@ def get_memorization_scores(dataset, net_type="VGG", num_runs=100, subset_ratio=
 
 def get_memorization_scores_MNIST(dataset, net_type="VGG", num_runs=100, subset_ratio=0.7):
     full_length = len(dataset)
-    subset_length = subset_ratio * full_length
+    subset_length = int(subset_ratio * full_length)
     masks = []
     correctnesses = []
 
