@@ -89,7 +89,7 @@ def get_memorization_scores(dataset, net_type="VGG", num_runs=100, subset_ratio=
         elif net_type == "Mobile":
             subset_net = full_train_mobilenet(subset_dset, 10)
         
-        mask = np.zeros(full_length, dtype=torch.bool)
+        mask = np.zeros(full_length, dtype=bool)
         mask[subset_idx] = True
         correctness = get_correctness_from_net(dataset, subset_net)
         
@@ -123,7 +123,7 @@ def get_memorization_scores_MNIST(dataset, net_type="VGG", num_runs=100, subset_
         elif net_type == "Mobile":
             subset_net = full_train_mobilenet_MNIST(subset_dset, 5)
         
-        mask = np.zeros(full_length, dtype=torch.bool)
+        mask = np.zeros(full_length, dtype=bool)
         mask[subset_idx] = True
         correctness = get_correctness_from_net(dataset, subset_net)
         
