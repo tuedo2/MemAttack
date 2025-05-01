@@ -75,11 +75,11 @@ def get_curv_scores_for_net(dataset, net):
 
 def get_memorization_scores(dataset, net_type="VGG", num_runs=100, subset_ratio=0.7):
     full_length = len(dataset)
-    subset_length = subset_ratio * full_length
+    subset_length = int(subset_ratio * full_length)
     masks = []
     correctnesses = []
 
-    for _ in num_runs:
+    for _ in range(num_runs):
         subset_idx = torch.randperm(full_length)[:subset_length]
         subset_dset = Subset(dataset, subset_idx)
         if net_type == "VGG":
