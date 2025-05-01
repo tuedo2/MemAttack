@@ -99,9 +99,9 @@ def get_memorization_scores(dataset, net_type="VGG", num_runs=100, subset_ratio=
     def _masked_avg(x, mask, axis=0, esp=1e-10):
         return (np.sum(x * mask, axis=axis) / np.maximum(np.sum(mask, axis=axis), esp)).astype(np.float32)
 
-    full_mask = np.vstack(mask for mask in masks)
+    full_mask = np.vstack([mask for mask in masks])
     inv_mask = np.logical_not(full_mask)
-    full_correctness = np.vstack(cor for cor in correctnesses)
+    full_correctness = np.vstack([cor for cor in correctnesses])
     mem_est = _masked_avg(full_correctness, full_mask) - _masked_avg(full_correctness, inv_mask)
 
     return mem_est
@@ -133,9 +133,9 @@ def get_memorization_scores_MNIST(dataset, net_type="VGG", num_runs=100, subset_
     def _masked_avg(x, mask, axis=0, esp=1e-10):
         return (np.sum(x * mask, axis=axis) / np.maximum(np.sum(mask, axis=axis), esp)).astype(np.float32)
 
-    full_mask = np.vstack(mask for mask in masks)
+    full_mask = np.vstack([mask for mask in masks])
     inv_mask = np.logical_not(full_mask)
-    full_correctness = np.vstack(cor for cor in correctnesses)
+    full_correctness = np.vstack([cor for cor in correctnesses])
     mem_est = _masked_avg(full_correctness, full_mask) - _masked_avg(full_correctness, inv_mask)
     
     return mem_est
