@@ -1,5 +1,12 @@
 import torch
 import torch.nn as nn
+from torch.utils.data import Subset
+import numpy as np
+
+from utils import full_train_VGG11, full_train_resnet, full_train_mobilenet
+from utils import full_train_VGG11_MNIST, full_train_resnet_MNIST, full_train_mobilenet_MNIST
+
+from utils import get_correctness_from_net
 
 device = torch.device(f'cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -65,3 +72,70 @@ def get_curv_scores_for_net(dataset, net):
         scores[idxs] = curv_estimate.detach().clone().cpu()
 
     return scores
+
+def get_memorization_scores(dataset, net_type="VGG", num_runs=100, subset_ratio=0.7):
+    full_length = len(dataset)
+    subset_length = subset_ratio * full_length
+    masks = []
+    correctnesses = []
+
+    for _ in num_runs:
+        subset_idx = torch.randperm(full_length)[:subset_length]
+        subset_dset = Subset(dataset, subset_idx)
+        if net_type == "VGG":
+            subset_net = full_train_VGG11(subset_dset, 10)
+        elif net_type == "Resnet":
+            subset_net = full_train_resnet(subset_net, 10)
+        elif net_type == "Mobile":
+            subset_net = full_train_mobilenet(subset_dset, 10)
+        
+        mask = np.zeros(full_length, dtype=torch.bool)
+        mask[subset_idx] = True
+        correctness = get_correctness_from_net(dataset, subset_net)
+        
+        masks.append(mask)
+        correctnesses.append(correctness)
+    
+    def _masked_avg(x, mask, axis=0, esp=1e-10):
+        return (np.sum(x * mask, axis=axis) / np.maximum(np.sum(mask, axis=axis), esp)).astype(np.float32)
+
+    full_mask = np.vstack(mask for mask in masks)
+    inv_mask = np.logical_not(full_mask)
+    full_correctness = np.vstack(cor for cor in correctnesses)
+    mem_est = _masked_avg(full_correctness, full_mask) - _masked_avg(full_correctness, inv_mask)
+
+    return mem_est
+
+
+def get_memorization_scores_MNIST(dataset, net_type="VGG", num_runs=100, subset_ratio=0.7):
+    full_length = len(dataset)
+    subset_length = subset_ratio * full_length
+    masks = []
+    correctnesses = []
+
+    for _ in num_runs:
+        subset_idx = torch.randperm(full_length)[:subset_length]
+        subset_dset = Subset(dataset, subset_idx)
+        if net_type == "VGG":
+            subset_net = full_train_VGG11_MNIST(subset_dset, 5)
+        elif net_type == "Resnet":
+            subset_net = full_train_resnet_MNIST(subset_net, 5)
+        elif net_type == "Mobile":
+            subset_net = full_train_mobilenet_MNIST(subset_dset, 5)
+        
+        mask = np.zeros(full_length, dtype=torch.bool)
+        mask[subset_idx] = True
+        correctness = get_correctness_from_net(dataset, subset_net)
+        
+        masks.append(mask)
+        correctnesses.append(correctness)
+    
+    def _masked_avg(x, mask, axis=0, esp=1e-10):
+        return (np.sum(x * mask, axis=axis) / np.maximum(np.sum(mask, axis=axis), esp)).astype(np.float32)
+
+    full_mask = np.vstack(mask for mask in masks)
+    inv_mask = np.logical_not(full_mask)
+    full_correctness = np.vstack(cor for cor in correctnesses)
+    mem_est = _masked_avg(full_correctness, full_mask) - _masked_avg(full_correctness, inv_mask)
+    
+    return mem_est

@@ -4,7 +4,7 @@ from torchvision import transforms
 import os
 import numpy as np
 
-from utils import full_train_VGG11, full_train_resnet, full_train_mobilenet, get_boundary_subset_from_net
+from utils import full_train_VGG11, full_train_resnet, full_train_mobilenet
 from attacks import SubsetTransformDataset, ReplaceWithDataset, Deepfool, Pseudoinverse, NaiveMaxEMD
 from scoring import get_curv_scores_for_net
 
@@ -22,7 +22,7 @@ num_runs = 5
 
 sizes = [10, 100, 1000]
 
-def replace_attack(dir_name, replace_dataset, net_type='VGG', mode='random', resize=(32, 32)):
+def replace_attack(dir_name, replace_dataset, net_type='VGG', resize=(32, 32)):
     for size in sizes:
         dir_path = f'{BASE_DIR}/{dir_name}_{size}'
         try:
@@ -32,16 +32,7 @@ def replace_attack(dir_name, replace_dataset, net_type='VGG', mode='random', res
 
         for i in range(num_runs):
             print(f'Saving scores at {dir_name} for size {size} run {i+1}...')
-            if mode == 'random':
-                subset_idx = torch.randperm(len(svhn))[:size]
-            elif mode == 'boundary':
-                if net_type == 'VGG':
-                    basenet = full_train_VGG11(basesvhn)
-                elif net_type == 'Resnet':
-                    basenet = full_train_resnet(basesvhn)
-                elif net_type == 'Mobile':
-                    basenet = full_train_mobilenet(basesvhn)
-                subset_idx = get_boundary_subset_from_net(svhn, basenet, size)
+            subset_idx = torch.randperm(len(svhn))[:size]
             new_dset = SubsetTransformDataset(svhn, subset_idx, 
                                               transforms.Compose([
                                                 transforms.ToTensor(), 
@@ -58,7 +49,7 @@ def replace_attack(dir_name, replace_dataset, net_type='VGG', mode='random', res
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG', mode='random'):
+def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG'):
     for size in sizes:
         dir_path = f'{BASE_DIR}/{dir_name}_{size}'
         try:
@@ -74,10 +65,7 @@ def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG', mode='random'):
                     basenet = full_train_resnet(basesvhn)
             elif net_type == 'Mobile':
                 basenet = full_train_mobilenet(basesvhn)
-            if mode == 'random':
-                subset_idx = torch.randperm(len(svhn))[:size]
-            elif mode == 'boundary':
-                subset_idx = get_boundary_subset_from_net(svhn, basenet, size)
+            subset_idx = torch.randperm(len(svhn))[:size]
             new_dset = SubsetTransformDataset(svhn, subset_idx, 
                                               transforms.Compose([
                                                 transforms.ToTensor(), 
@@ -95,7 +83,7 @@ def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG', mode='random'):
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
 
-def pinv_attack(dir_name, net_type='VGG', mode='random'):
+def pinv_attack(dir_name, net_type='VGG'):
     for size in sizes:
         dir_path = f'{BASE_DIR}/{dir_name}_{size}'
         try:
@@ -105,17 +93,7 @@ def pinv_attack(dir_name, net_type='VGG', mode='random'):
 
         for i in range(num_runs):
             print(f'Saving scores at {dir_name} for size {size} run {i+1}...')
-            
-            if mode == 'random':
-                subset_idx = torch.randperm(len(svhn))[:size]
-            elif mode == 'boundary':
-                if net_type == 'VGG':
-                    basenet = full_train_VGG11(basesvhn)
-                elif net_type == 'Resnet':
-                    basenet = full_train_resnet(basesvhn)
-                elif net_type == 'Mobile':
-                    basenet = full_train_mobilenet(basesvhn)
-                subset_idx = get_boundary_subset_from_net(svhn, basenet, size)
+            subset_idx = torch.randperm(len(svhn))[:size]
             new_dset = SubsetTransformDataset(svhn, subset_idx, 
                                               transforms.Compose([
                                                 transforms.ToTensor(),
@@ -132,7 +110,7 @@ def pinv_attack(dir_name, net_type='VGG', mode='random'):
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-def naive_emd_attack(dir_name, net_type='VGG', mode='random'):
+def naive_emd_attack(dir_name, net_type='VGG'):
     for size in sizes:
         dir_path = f'{BASE_DIR}/{dir_name}_{size}'
         try:
@@ -142,17 +120,7 @@ def naive_emd_attack(dir_name, net_type='VGG', mode='random'):
 
         for i in range(num_runs):
             print(f'Saving scores at {dir_name} for size {size} run {i+1}...')
-            
-            if mode == 'random':
-                subset_idx = torch.randperm(len(svhn))[:size]
-            elif mode == 'boundary':
-                if net_type == 'VGG':
-                    basenet = full_train_VGG11(basesvhn)
-                elif net_type == 'Resnet':
-                    basenet = full_train_resnet(basesvhn)
-                elif net_type == 'Mobile':
-                    basenet = full_train_mobilenet(basesvhn)
-                subset_idx = get_boundary_subset_from_net(svhn, basenet, size)
+            subset_idx = torch.randperm(len(svhn))[:size]
             new_dset = SubsetTransformDataset(svhn, subset_idx, 
                                               transforms.Compose([
                                                 transforms.ToTensor(), 

@@ -187,3 +187,19 @@ def get_boundary_subset_from_net(train, net, k):
     _, subset_idx = torch.topk(scores, k=k, largest=False)
 
     return subset_idx
+
+def get_correctness_from_net(dset, net, device=torch.device('cuda')):
+    net.eval()
+    loader = torch.utils.data.DataLoader(dset, batch_size=512, shuffle=False)
+    correctness_list = []
+
+    with torch.no_grad():
+        for images, labels in loader:
+            images, labels = images.to(device), labels.to(device)
+            outputs = net(images)
+            preds = outputs.argmax(dim=1)
+            correct = (preds == labels)
+            correctness_list.append(correct.cpu())
+    
+    correctness_tensor = torch.cat(correctness_list)
+    return correctness_tensor
