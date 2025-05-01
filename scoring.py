@@ -85,7 +85,7 @@ def get_memorization_scores(dataset, net_type="VGG", num_runs=100, subset_ratio=
         if net_type == "VGG":
             subset_net = full_train_VGG11(subset_dset, 10)
         elif net_type == "Resnet":
-            subset_net = full_train_resnet(subset_net, 10)
+            subset_net = full_train_resnet(subset_dset, 10)
         elif net_type == "Mobile":
             subset_net = full_train_mobilenet(subset_dset, 10)
         
@@ -119,7 +119,7 @@ def get_memorization_scores_MNIST(dataset, net_type="VGG", num_runs=100, subset_
         if net_type == "VGG":
             subset_net = full_train_VGG11_MNIST(subset_dset, 5)
         elif net_type == "Resnet":
-            subset_net = full_train_resnet_MNIST(subset_net, 5)
+            subset_net = full_train_resnet_MNIST(subset_dset, 5)
         elif net_type == "Mobile":
             subset_net = full_train_mobilenet_MNIST(subset_dset, 5)
         
