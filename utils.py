@@ -161,9 +161,7 @@ def get_boundary_scores_for_net(train, net):
     scores = torch.zeros(len(train))
     loader = torch.utils.data.DataLoader(dataset=train, batch_size=512, shuffle=False)
     with torch.no_grad():
-        for i, data in enumerate(loader, 0):
-            # get the inputs; data is a list of [inputs, labels]
-            inputs, targets = data
+        for input, targets in loader:
             inputs, targets = inputs.to('cuda'), targets.to('cuda')
 
             start_idx = total
@@ -203,3 +201,4 @@ def get_correctness_from_net(dset, net, device=torch.device('cuda')):
     
     correctness_tensor = torch.cat(correctness_list)
     return correctness_tensor
+
