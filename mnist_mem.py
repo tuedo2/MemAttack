@@ -13,9 +13,9 @@ default_transform = transforms.Compose([transforms.Resize(32), transforms.ToTens
 mnist = torchvision.datasets.MNIST(root='./data', train=True, transform=default_transform, download=True)
 
 BASE_DIR = './mnist_mem_scores'
-num_runs = 5
+num_runs = 1
 
-sizes = [10, 100, 1000]
+sizes = [100]
 
 def replace_attack(dir_name, replace_dataset, net_type='VGG'):
     for size in sizes:
@@ -89,21 +89,49 @@ def naive_emd_attack(dir_name, net_type='VGG'):
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
 fashion = torchvision.datasets.FashionMNIST(root='./data', train=True, transform=default_transform, download=False)
-kmnist = torchvision.datasets.KMNIST(root='./data', train=True, transform=default_transform, download=False)
-emnist = torchvision.datasets.EMNIST(root='./data', split='letters', train=True, transform=default_transform, download=False)
+# kmnist = torchvision.datasets.KMNIST(root='./data', train=True, transform=default_transform, download=False)
+# emnist = torchvision.datasets.EMNIST(root='./data', split='letters', train=True, transform=default_transform, download=False)
 
-replace_attack('emnist_vgg', emnist, net_type='VGG')
-replace_attack('emnist_resnet', emnist, net_type='Resnet')
-replace_attack('emnist_mobile', emnist, net_type='Mobile')
+replace_attack('fashion_vgg1', fashion, net_type='VGG')
+replace_attack('fashion_vgg2', fashion, net_type='VGG')
+replace_attack('fashion_vgg3', fashion, net_type='VGG')
+replace_attack('fashion_vgg4', fashion, net_type='VGG')
+replace_attack('fashion_vgg5', fashion, net_type='VGG')
 
-deepfool_attack('deepfool_vgg', net_type='VGG')
-deepfool_attack('deepfool_resnet', net_type='Resnet')
-deepfool_attack('deepfool_mobile', net_type='Mobile')
+pinv_attack('pinv_vgg1', net_type='VGG')
+pinv_attack('pinv_vgg2', net_type='VGG')
+pinv_attack('pinv_vgg3', net_type='VGG')
+pinv_attack('pinv_vgg4', net_type='VGG')
+pinv_attack('pinv_vgg5', net_type='VGG')
 
-pinv_attack('pinv_vgg', net_type='VGG')
-pinv_attack('pinv_resnet', net_type='Resnet')
-pinv_attack('pinv_mobile', net_type='Mobile')
+replace_attack('fashion_resnet1', fashion, net_type='Resnet')
+replace_attack('fashion_resnet2', fashion, net_type='Resnet')
+replace_attack('fashion_resnet3', fashion, net_type='Resnet')
+replace_attack('fashion_resnet4', fashion, net_type='Resnet')
+replace_attack('fashion_resnet5', fashion, net_type='Resnet')
 
-naive_emd_attack('naiveemd_vgg', net_type='VGG')
-naive_emd_attack('naiveemd_resnet', net_type='Resnet')
-naive_emd_attack('naiveemd_mobile', net_type='Mobile')
+pinv_attack('pinv_resnet1', net_type='Resnet')
+pinv_attack('pinv_resnet2', net_type='Resnet')
+pinv_attack('pinv_resnet3', net_type='Resnet')
+pinv_attack('pinv_resnet4', net_type='Resnet')
+pinv_attack('pinv_resnet5', net_type='Resnet')
+
+replace_attack('fashion_mobile1', fashion, net_type='Mobile')
+replace_attack('fashion_mobile2', fashion, net_type='Mobile')
+replace_attack('fashion_mobile3', fashion, net_type='Mobile')
+replace_attack('fashion_mobile4', fashion, net_type='Mobile')
+replace_attack('fashion_mobile5', fashion, net_type='Mobile')
+
+pinv_attack('pinv_mobile1', net_type='Mobile')
+pinv_attack('pinv_mobile2', net_type='Mobile')
+pinv_attack('pinv_mobile3', net_type='Mobile')
+pinv_attack('pinv_mobile4', net_type='Mobile')
+pinv_attack('pinv_mobile5', net_type='Mobile')
+
+# deepfool_attack('deepfool_vgg', net_type='VGG')
+# deepfool_attack('deepfool_resnet', net_type='Resnet')
+# deepfool_attack('deepfool_mobile', net_type='Mobile')
+
+# naive_emd_attack('naiveemd_vgg', net_type='VGG')
+# naive_emd_attack('naiveemd_resnet', net_type='Resnet')
+# naive_emd_attack('naiveemd_mobile', net_type='Mobile')
