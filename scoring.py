@@ -17,6 +17,10 @@ device = torch.device(f'cuda' if torch.cuda.is_available() else 'cpu')
 
 criterion = nn.CrossEntropyLoss()
 
+
+'''
+    Code is taken from https://github.com/DeepakTatachar/Privacy-Memorization-Curvature/blob/main/calc_curv_fz_models.py
+'''
 def get_regularized_curvature_for_batch(net, batch_data, batch_labels, h=1e-3, niter=10, temp=1):
     """
     Helper function that generates curvature scores for a batch
@@ -50,6 +54,7 @@ def get_regularized_curvature_for_batch(net, batch_data, batch_labels, h=1e-3, n
     curv_estimate = regr / niter
     return curv_estimate
 
+
 def get_curv_scores_for_net(dataset, net):
     """
     Args:
@@ -78,74 +83,10 @@ def get_curv_scores_for_net(dataset, net):
 
     return scores
 
-def get_memorization_scores(dataset, net_type="VGG", num_runs=100, subset_ratio=0.7):
-    full_length = len(dataset)
-    subset_length = int(subset_ratio * full_length)
-    masks = []
-    correctnesses = []
 
-    for _ in range(num_runs):
-        subset_idx = torch.randperm(full_length)[:subset_length]
-        subset_dset = Subset(dataset, subset_idx)
-        if net_type == "VGG":
-            subset_net = full_train_VGG11(subset_dset, 10)
-        elif net_type == "Resnet":
-            subset_net = full_train_resnet(subset_dset, 10)
-        elif net_type == "Mobile":
-            subset_net = full_train_mobilenet(subset_dset, 10)
-        
-        mask = np.zeros(full_length, dtype=bool)
-        mask[subset_idx] = True
-        correctness = get_correctness_from_net(dataset, subset_net)
-        
-        masks.append(mask)
-        correctnesses.append(correctness)
-    
-    def _masked_avg(x, mask, axis=0, esp=1e-10):
-        return (np.sum(x * mask, axis=axis) / np.maximum(np.sum(mask, axis=axis), esp)).astype(np.float32)
-
-    full_mask = np.vstack([mask for mask in masks])
-    inv_mask = np.logical_not(full_mask)
-    full_correctness = np.vstack([cor for cor in correctnesses])
-    mem_est = _masked_avg(full_correctness, full_mask) - _masked_avg(full_correctness, inv_mask)
-
-    return mem_est
-
-
-def get_memorization_scores_MNIST(dataset, net_type="VGG", num_runs=100, subset_ratio=0.7):
-    full_length = len(dataset)
-    subset_length = int(subset_ratio * full_length)
-    masks = []
-    correctnesses = []
-
-    for _ in range(num_runs):
-        subset_idx = torch.randperm(full_length)[:subset_length]
-        subset_dset = Subset(dataset, subset_idx)
-        if net_type == "VGG":
-            subset_net = full_train_VGG11_MNIST(subset_dset, 5)
-        elif net_type == "Resnet":
-            subset_net = full_train_resnet_MNIST(subset_dset, 5)
-        elif net_type == "Mobile":
-            subset_net = full_train_mobilenet_MNIST(subset_dset, 5)
-        
-        mask = np.zeros(full_length, dtype=bool)
-        mask[subset_idx] = True
-        correctness = get_correctness_from_net(dataset, subset_net)
-        
-        masks.append(mask)
-        correctnesses.append(correctness)
-    
-    def _masked_avg(x, mask, axis=0, esp=1e-10):
-        return (np.sum(x * mask, axis=axis) / np.maximum(np.sum(mask, axis=axis), esp)).astype(np.float32)
-
-    full_mask = np.vstack([mask for mask in masks])
-    inv_mask = np.logical_not(full_mask)
-    full_correctness = np.vstack([cor for cor in correctnesses])
-    mem_est = _masked_avg(full_correctness, full_mask) - _masked_avg(full_correctness, inv_mask)
-    
-    return mem_est
-
-
+'''
+    Code taken from https://github.com/inspire-group/membership-inference-evaluation
+'''
 def distrs_compute(tr_values, te_values, tr_labels, te_labels, num_bins=5, log_bins=True, plot_name=None):
     
     ### function to compute and plot the normalized histogram for both training and test values class by class.
@@ -340,7 +281,9 @@ def get_risk_scores_MNIST(dset, test, net_type='VGG'):
     return scores
     
 
-
+'''
+    Code is my own following description of https://arxiv.org/abs/2410.16516
+'''
 def get_proxies(dset, net_type='VGG', num_epochs=5):
     if net_type == 'VGG':
         net = VGG('VGG11').to(device)
@@ -468,3 +411,5 @@ def get_proxies_MNIST(dset, net_type='VGG', num_epochs=5):
     full_correctness = np.stack(full_correctness)
 
     return full_confidence, full_max_confidence, full_entropy, full_correctness
+
+

@@ -15,7 +15,7 @@ default_transform = transforms.Compose([
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))
 ])
 
-basecifar10 = torchvision.datasets.CIFAR10(root='./data', train=True, transform=default_transform, download=False)
+basecifar10 = torchvision.datasets.CIFAR10(root='./data', train=True, transform=default_transform, download=True)
 test = torchvision.datasets.CIFAR10(root='./data', train=False, transform=default_transform, download=False)
 
 BASE_DIR = './cifar10_mia_scores'
@@ -119,7 +119,7 @@ def naive_emd_attack(dir_name, net_type='VGG'):
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-svhn = torchvision.datasets.SVHN(root='./data', split='train', transform=transforms.ToTensor(), download=False)
+svhn = torchvision.datasets.SVHN(root='./data', split='train', transform=transforms.ToTensor(), download=True)
 
 replace_attack('svhn_vgg', svhn, net_type='VGG')
 replace_attack('svhn_resnet', svhn, net_type='Resnet')

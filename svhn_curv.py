@@ -137,9 +137,20 @@ def naive_emd_attack(dir_name, net_type='VGG'):
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-cifar10 = torchvision.datasets.CIFAR10(root='./data', train=True, transform=transforms.ToTensor(), download=False)
+cifar10 = torchvision.datasets.CIFAR10(root='./data', train=True, transform=transforms.ToTensor(), download=True)
 
+replace_attack('cifar10_vgg', cifar10, net_type='VGG')
+replace_attack('cifar10_resnet', cifar10, net_type='Resnet')
 replace_attack('cifar10_mobile', cifar10, net_type='Mobile')
-deepfool_attack('deepfool02_mobile', net_type='Mobile')
+
+deepfool_attack('deepfool_vgg', net_type='VGG')
+deepfool_attack('deepfool_resnet', net_type='Resnet')
+deepfool_attack('deepfool_mobile', net_type='Mobile')
+
+pinv_attack('pinv_vgg', net_type='VGG')
+pinv_attack('pinv_resnet', net_type='Resnet')
 pinv_attack('pinv_mobile', net_type='Mobile')
+
+naive_emd_attack('naiveemd_vgg', net_type='VGG')
+naive_emd_attack('naiveemd_resnet', net_type='Resnet')
 naive_emd_attack('naiveemd_mobile', net_type='Mobile')

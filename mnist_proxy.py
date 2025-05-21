@@ -88,17 +88,7 @@ def naive_emd_attack(dir_name, net_type='VGG'):
             score_dict = dict(subset=subset_idx, conf=conf, max_conf=max_conf, entr=entr, corr=corr)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-fashion = torchvision.datasets.FashionMNIST(root='./data', train=True, transform=default_transform, download=False)
-kmnist = torchvision.datasets.KMNIST(root='./data', train=True, transform=default_transform, download=False)
-emnist = torchvision.datasets.EMNIST(root='./data', split='letters', train=True, transform=default_transform, download=False)
-
-replace_attack('emnist_vgg', emnist, net_type='VGG')
-replace_attack('emnist_resnet', emnist, net_type='Resnet')
-replace_attack('emnist_mobile', emnist, net_type='Mobile')
-
-replace_attack('kmnist_vgg', kmnist, net_type='VGG')
-replace_attack('kmnist_resnet', kmnist, net_type='Resnet')
-replace_attack('kmnist_mobile', kmnist, net_type='Mobile')
+fashion = torchvision.datasets.FashionMNIST(root='./data', train=True, transform=default_transform, download=True)
 
 replace_attack('fashion_vgg', fashion, net_type='VGG')
 replace_attack('fashion_resnet', fashion, net_type='Resnet')

@@ -118,7 +118,7 @@ def naive_emd_attack(dir_name, net_type='VGG'):
             score_dict = dict(subset=subset_idx, conf=conf, max_conf=max_conf, entr=entr, corr=corr)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-svhn = torchvision.datasets.SVHN(root='./data', split='train', transform=transforms.ToTensor(), download=False)
+svhn = torchvision.datasets.SVHN(root='./data', split='train', transform=transforms.ToTensor(), download=True)
 
 replace_attack('svhn_vgg', svhn, net_type='VGG')
 replace_attack('svhn_resnet', svhn, net_type='Resnet')

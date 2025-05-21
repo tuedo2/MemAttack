@@ -118,7 +118,7 @@ def naive_emd_attack(dir_name, net_type='VGG'):
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-cifar10 = torchvision.datasets.CIFAR10(root='./data', train=True, transform=transforms.ToTensor(), download=False)
+cifar10 = torchvision.datasets.CIFAR10(root='./data', train=True, transform=transforms.ToTensor(), download=True)
 
 replace_attack('cifar10_vgg', cifar10, net_type='VGG')
 replace_attack('cifar10_resnet', cifar10, net_type='Resnet')

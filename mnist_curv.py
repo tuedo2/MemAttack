@@ -114,9 +114,19 @@ def naive_emd_attack(dir_name, net_type='VGG'):
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
 fashion = torchvision.datasets.FashionMNIST(root='./data', train=True, transform=default_transform, download=True)
-kmnist = torchvision.datasets.KMNIST(root='./data', train=True, transform=default_transform, download=True)
-emnist = torchvision.datasets.EMNIST(root='./data', split='letters', train=True, transform=default_transform, download=True)
 
-replace_attack('emnist_vgg', emnist, net_type='VGG')
-replace_attack('emnist_resnet', emnist, net_type='Resnet')
-replace_attack('emnist_mobile', emnist, net_type='Mobile')
+replace_attack('fashion_vgg', fashion, net_type='VGG')
+replace_attack('fashion_resnet', fashion, net_type='Resnet')
+replace_attack('fashion_mobile', fashion, net_type='Mobile')
+
+deepfool_attack('deepfool_vgg', net_type='VGG')
+deepfool_attack('deepfool_resnet', net_type='Resnet')
+deepfool_attack('deepfool_mobile', net_type='Mobile')
+
+pinv_attack('pinv_vgg', net_type='VGG')
+pinv_attack('pinv_resnet', net_type='Resnet')
+pinv_attack('pinv_mobile', net_type='Mobile')
+
+naive_emd_attack('naiveemd_vgg', net_type='VGG')
+naive_emd_attack('naiveemd_resnet', net_type='Resnet')
+naive_emd_attack('naiveemd_mobile', net_type='Mobile')
