@@ -5,7 +5,8 @@ Dependencies:
 torch torchvision numpy matplotlib pot 
 ```
 
-Example usage:
+## Example usage:
+
 To get curvature scores for CIFAR10, run
 ```
 mkdir cifar10_curv_scores
