@@ -8,7 +8,7 @@ from utils import full_train_VGG11, full_train_resnet, full_train_mobilenet
 from attacks import SubsetTransformDataset, ReplaceWithDataset, Deepfool, Pseudoinverse, NaiveMaxEMD
 from scoring import get_curv_scores_for_net
 
-from mat import full_train_resnet_mat
+from mat import full_train_VGG11_mat, full_train_resnet_mat
 
 svhn = torchvision.datasets.SVHN(root='./data', split='train', download=True)
 
@@ -68,8 +68,8 @@ def replace_mat_attack(dir_name, replace_dataset, net_type='Resnet', resize=(32,
                                                 ReplaceWithDataset(replace_dataset, resize),
                                                 transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970))]), 
                                                 default_transform)
-            # if net_type == 'VGG':
-            #     net = full_train_VGG11(new_dset)
+            if net_type == 'VGG':
+                net = full_train_VGG11_mat(new_dset)
             if net_type == 'Resnet':
                 net = full_train_resnet_mat(new_dset)
             # elif net_type == 'Mobile':
@@ -157,8 +157,8 @@ def pinv_mat_attack(dir_name, net_type='Resnet'):
                                                 transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),   
                                                 Pseudoinverse()]),
                                                 default_transform)
-            # if net_type == 'VGG':
-            #     net = full_train_VGG11(new_dset)
+            if net_type == 'VGG':
+                net = full_train_VGG11_mat(new_dset)
             if net_type == 'Resnet':
                 net = full_train_resnet_mat(new_dset)
             # elif net_type == 'Mobile':

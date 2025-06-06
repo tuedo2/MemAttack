@@ -48,16 +48,81 @@ def XRM(dset, net_a, net_b, opt_a, opt_b, batch_size=512, num_classes=10, num_ep
     
     return p_ho_full
 
-def get_shift(y, ho, temp=1.0):
+def get_shift(y, ho, num_classes=10, temp=1.0):
     # 1st dim: x, 2nd dim: yho
     p_yho_given_x = (ho / temp).softmax(1)
     # 1st dim: yho, 2nd dim: y
     p_y_yho = torch.cat([
         p_yho_given_x[y.eq(y_i)].sum(0).unsqueeze(1) / len(y)
-        for y_i in y.unique()], 1)
+        for y_i in range(num_classes)], 1)
     p_y_given_yho = p_y_yho / p_y_yho.sum(1, keepdim=True)
     # calibrated p_yho_given_x
     return torch.log(torch.mm(p_yho_given_x, p_y_given_yho) + 1e-6).detach()
+
+def full_train_VGG11_mat(train, num_epochs=5, device=torch.device('cuda')):
+    lr = 0.01   
+    batch_size = 512
+    criterion = nn.CrossEntropyLoss()
+
+    net_a, net_b = VGG('VGG11').to(device), VGG('VGG11').to(device)
+    opt_a, opt_b = optim.SGD(net_a.parameters(), lr=lr, momentum=0.9), optim.SGD(net_b.parameters(), lr=lr, momentum=0.9)
+
+    p_ho_full = XRM(train, net_a, net_b, opt_a, opt_b, batch_size=batch_size, num_epochs=num_epochs).to(device)
+
+    del net_a, net_b, opt_a, opt_b
+
+    trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
+    
+    net = VGG('VGG11').to(device)
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+
+    for epoch in range(num_epochs):
+        for i, (inputs, labels) in enumerate(trainloader):
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            outputs = net(inputs)
+            shift = get_shift(labels, p_ho_full[i*batch_size:(i+1)*batch_size])
+            loss = criterion(outputs + shift, labels)
+
+            loss.backward()
+            optimizer.step()
+    
+    return net
+
+def full_train_VGG11_mat_MNIST(train, num_epochs=5, device=torch.device('cuda')):
+    lr = 0.01
+    batch_size = 512
+    criterion = nn.CrossEntropyLoss()
+
+    net_a, net_b = VGG_MNIST('VGG11').to(device), VGG_MNIST('VGG11').to(device)
+    opt_a, opt_b = optim.SGD(net_a.parameters(), lr=lr, momentum=0.9), optim.SGD(net_b.parameters(), lr=lr, momentum=0.9)
+
+    p_ho_full = XRM(train, net_a, net_b, opt_a, opt_b, batch_size=batch_size, num_epochs=num_epochs).to(device)
+
+    del net_a, net_b, opt_a, opt_b
+
+    trainloader = torch.utils.data.DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
+    
+    net = VGG_MNIST('VGG11').to(device)
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+
+    for epoch in range(num_epochs):
+        for i, (inputs, labels) in enumerate(trainloader):
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            outputs = net(inputs)
+            shift = get_shift(labels, p_ho_full[i*batch_size:(i+1)*batch_size])
+            loss = criterion(outputs + shift, labels)
+
+            loss.backward()
+            optimizer.step()
+    
+    return net
+
 
 def full_train_resnet_mat(train, num_epochs=5, device=torch.device('cuda')):
     lr = 0.01
