@@ -216,3 +216,15 @@ class NaiveMaxEMD:
 
         img = naive_max_sliced_wasserstein(img)
         return img
+    
+
+class UniformRandom:
+    """
+    Transform that replaces images with random uniform noise
+    """
+    def __call__(self, img):
+        """
+        Replace the given image with a random uniform noise image
+        """
+        img = torch.rand_like(img)
+        return img
