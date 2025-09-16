@@ -8,7 +8,6 @@ from utils import full_train_VGG11_MNIST, full_train_resnet_MNIST, full_train_mo
 from attacks import SubsetTransformDataset, ReplaceWithDataset, Deepfool, Pseudoinverse, NaiveMaxEMD
 from scoring import get_curv_scores_for_net
 
-from mat import full_train_VGG11_mat_MNIST, full_train_resnet_mat_MNIST
 
 default_transform = transforms.Compose([transforms.Resize(32), transforms.ToTensor()])
 
@@ -41,25 +40,6 @@ def replace_attack(dir_name, replace_dataset, net_type='VGG'):
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-def replace_mat_attack(dir_name, replace_dataset, net_type='Resnet'):
-    for size in sizes:
-        dir_path = f'{BASE_DIR}/{dir_name}_{size}'
-        try:
-            os.mkdir(dir_path) # make directory to keep scores if not already created
-        except:
-            continue
-
-        for i in range(num_runs):
-            print(f'Saving scores at {dir_name} for size {size} run {i+1}...')
-            subset_idx = torch.randperm(len(mnist))[:size]
-            new_dset = SubsetTransformDataset(mnist, subset_idx, ReplaceWithDataset(replace_dataset))
-            if net_type == 'VGG':
-                net = full_train_VGG11_mat_MNIST(new_dset)
-            elif net_type == 'Resnet':
-                net = full_train_resnet_mat_MNIST(new_dset)
-            scores = get_curv_scores_for_net(new_dset, net)
-            score_dict = dict(subset=subset_idx, scores=scores)
-            np.savez(f'{dir_path}/run_{i+1}', **score_dict) 
 
 def deepfool_attack(dir_name, overshoot=0.02, net_type='VGG'):
     for size in sizes:
@@ -112,27 +92,6 @@ def pinv_attack(dir_name, net_type='VGG'):
             score_dict = dict(subset=subset_idx, scores=scores)
             np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
-def pinv_mat_attack(dir_name, net_type='Resnet'):
-    for size in sizes:
-        dir_path = f'{BASE_DIR}/{dir_name}_{size}'
-        try:
-            os.mkdir(dir_path) # make directory to keep scores if not already created
-        except:
-            continue # delete or rename old score directory if new ones are to be created
-
-        for i in range(num_runs):
-            print(f'Saving scores at {dir_name} for size {size} run {i+1}...')           
-            subset_idx = torch.randperm(len(mnist))[:size]
-            new_dset = SubsetTransformDataset(mnist, subset_idx, Pseudoinverse())
-            if net_type == 'VGG':
-                net = full_train_VGG11_mat_MNIST(new_dset)
-            if net_type == 'Resnet':
-                net = full_train_resnet_mat_MNIST(new_dset)
-            # elif net_type == 'Mobile':
-            #     net = full_train_mobilenet_MNIST(new_dset)
-            scores = get_curv_scores_for_net(new_dset, net)
-            score_dict = dict(subset=subset_idx, scores=scores)
-            np.savez(f'{dir_path}/run_{i+1}', **score_dict)
 
 def naive_emd_attack(dir_name, net_type='VGG'):
     for size in sizes:
